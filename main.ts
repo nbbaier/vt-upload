@@ -7,33 +7,31 @@ async function main() {
     if (!token) {
       throw new Error("VALTOWN token not found");
     }
-  } catch (e) {
-    console.error(e);
-    return;
-  }
 
-  try {
+    const headers = {
+      accept: "application/json",
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    };
+
     const result = await fetch("https://api.val.town/v1/vals", {
       method: "POST",
-      headers: {
-        accept: "application/json",
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-
+      headers,
       body: JSON.stringify({
-        // TODO name: filename,
         code: file,
       }),
     });
 
-    const { author, name } = await result.json();
-
-    console.log(
-      `Val created successfully! https://val.town/v/${author.username}/${name}`
-    );
+    if (result.ok) {
+      const { author, name } = await result.json();
+      console.log(
+        `Val created successfully! https://val.town/v/${author.username}/${name}`
+      );
+    } else {
+      throw new Error(`Request failed with status ${result.status}`);
+    }
   } catch (e) {
-    console.error(e);
+    console.error(e.message || e);
   }
 }
 
